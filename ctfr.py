@@ -1,8 +1,9 @@
-import re
-import requests
 import argparse
+import re
 import time
 from multiprocessing import Pool
+
+import requests
 
 PARSER = argparse.ArgumentParser()
 PARSER.add_argument('-domain', '-d', type=str, action='append', required=True, help="Target domain.")
@@ -63,6 +64,4 @@ if __name__ == '__main__':
 				output = ARGS.output
 				if output is not None:
 					save_subdomains(subdomain, output)
-			pool.terminate()
-			break
 	pool.join()
