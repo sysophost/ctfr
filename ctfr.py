@@ -1,5 +1,7 @@
 import argparse
+import logging
 import re
+import sys
 import time
 from multiprocessing import Pool
 
@@ -15,15 +17,17 @@ ARGS = PARSER.parse_args()
 MAX_RETRY = 5
 SLEEP_SECONDS = 3
 
-verbose_print = print if ARGS.verbose else lambda *a, **k: None
+if ARGS.verbose:
+    logging.basicConfig(format='%(message)s', level=logging.INFO, stream=sys.stderr)
+
 
 def search_domain(domain):
 	subdomains = []
-	verbose_print(f"[i] Checking {domain}")
+	logging.info(f"[i] Checking {domain}")
 
 	retry_count = 0
 	while ((resp := submit_query(domain)).status_code) == 429 and retry_count < MAX_RETRY:
-		verbose_print(f"[i] Got HTTP 429 for {domain}, sleeping for {SLEEP_SECONDS} seconds")
+		logging.info(f"[i] Got HTTP 429 for {domain}, sleeping for {SLEEP_SECONDS} seconds")
 		retry_count += 1
 		time.sleep(SLEEP_SECONDS) 
 
@@ -39,7 +43,7 @@ def search_domain(domain):
 		subdomains.append(value['name_value'])
 
 	subdomains = sorted(set(subdomains))
-	verbose_print(f"[i] Finished {domain}")
+	logging.info(f"[i] Finished {domain}")
 	return subdomains
 
 def submit_query(domain):
